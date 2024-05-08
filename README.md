@@ -1,2 +1,2 @@
 # TINA
-Projeto dedicado a disciplina Processo de Software (UFRN).
+Projeto dedicado a disciplina Processos de Software (UFRN).
