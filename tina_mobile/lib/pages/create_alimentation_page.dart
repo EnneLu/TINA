@@ -4,26 +4,29 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:tina_mobile/components/MultipleChoice.dart';
+import 'package:tina_mobile/components/MultipleMealChoice.dart';
 import 'package:tina_mobile/components/my_icon_button.dart';
-import 'package:tina_mobile/model/event.dart';
+import 'package:tina_mobile/model/alimentation.dart';
 
-class CreateEventPage extends StatefulWidget {
-  const CreateEventPage({super.key});
+class CreateAlimentationPage extends StatefulWidget {
+  const CreateAlimentationPage({super.key});
 
   @override
-  State<CreateEventPage> createState() => _CreateEventPageState();
+  State<CreateAlimentationPage> createState() => _CreateAlimentationPageState();
 }
 
-class _CreateEventPageState extends State<CreateEventPage> {
+class _CreateAlimentationPageState extends State<CreateAlimentationPage> {
   final _emojiController = TextEditingController();
   final _emojiScrollController = ScrollController();
 
   final _dateController = TextEditingController();
-  final _placeController = TextEditingController();
-  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   bool showEmojiKeyboard = false;
   bool showColorPicker = false;
+  Set<SizesMeal> meal = <SizesMeal>{SizesMeal.cafe};
+  Set<Sizes> repeticaoDia = <Sizes>{Sizes.domingo};
 
   String? emoji;
   Color color = Color(0xFFFFDC71);
@@ -35,33 +38,29 @@ class _CreateEventPageState extends State<CreateEventPage> {
   }
 
   void saveAndBack() {
-    if (_nameController.text == "") {
+    if (_descriptionController.text == "") {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Nome é obrigatório"),
+        content: Text("Descrição é obrigatório"),
       ));
       return;
     }
     if (_dateController.text == "") {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Data é obrigatória"),
-      ));
-      return;
-    }
-    if (_placeController.text == "") {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Local é obrigatório"),
+        content: Text("Horário é obrigatório"),
       ));
       return;
     }
 
-    Event event = Event(
-        color: color,
-        place: _placeController.text,
-        date: DateFormat("dd/MM/yyyy HH:mm").parse(_dateController.text),
-        emoji: emoji ?? "📆",
-        name: _nameController.text,
-        status: currentStatus);
-    Navigator.pop(context, event);
+    Alimentation alimentation = Alimentation(
+      color: color, 
+      emoji: emoji ?? "📆", 
+      status: currentStatus,
+      description: _descriptionController.text,
+      date: DateFormat("hh:mm").parse(_dateController.text),
+      meal: meal,
+      repeticaoDia: repeticaoDia,
+    );
+    Navigator.pop(context, alimentation);
   }
 
   Widget showColorPickerModal() {
@@ -141,7 +140,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Novo evento"),
+        title: Text("Nova alimentação"),
       ),
       body: Column(
         children: [
@@ -150,17 +149,13 @@ class _CreateEventPageState extends State<CreateEventPage> {
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
               child: Column(
                 children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: "Nome",
-                      hintText: "Nome",
-                    ),
-                    controller: _nameController,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
+                  ListTile(title: Text("Selecione a Refeição"),tileColor: Colors.transparent),
+                  MultipleMealChoice(onUpdate: (m) {
+                    setState(() {
+                      meal = m;
+                    });
+                  },),
+                  Divider(),
                   Row(
                     children: [
                       MyIconButton(
@@ -199,119 +194,47 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       ),
                     ],
                   ),
+                  Divider(), 
+                  ListTile(title: Text("Repetição"),tileColor: Colors.transparent),
+                  MultipleChoice(onUpdate: (l) {
+                    setState(() {
+                      repeticaoDia = l;
+                    });
+                  },),
                   Divider(),
                   Stack(
                     children: [
                       TextField(
+                        minLines: 3,
+                        maxLines: 10,
                         decoration: InputDecoration(
-                          labelText: "Data",
-                          hintText: "Data",
+                          hintText: "Descrição",                          
                         ),
-                        controller: _dateController,
+                        controller: _descriptionController,
                         style: TextStyle(
                           color: Colors.white,
                         ),
                       ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
-                        height: 65,
+                        height: 15,
                         child: InkWell(
                           splashColor: Colors.transparent,
-                          onTap: () {
-                            showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2022),
-                              lastDate: DateTime(2033),
-                            ).then((selectedDate) {
-                              if (selectedDate != null) {
-                                _dateController.text = DateFormat('dd/MM/yyyy')
-                                    .format(selectedDate);
-                              }
-                              showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now())
-                                  .then((selectedTime) {
-                                if (selectedTime != null) {
-                                  _dateController.text +=
-                                      " ${selectedTime.format(context)}";
-                                }
-                              });
+                          onTap: () {                            
+                            showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.now())
+                                .then((selectedTime) {
+                              if (selectedTime != null) {
+                                _dateController.text +=
+                                    " ${selectedTime.format(context)}";
+                              }                              
                             });
                           },
                         ),
                       )
                     ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextField(
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: "Local",
-                      hintText: "Local",
-                    ),
-                    controller: _placeController,
-                  ),
-                  Divider(),
-                  Column(
-                    children: [
-                      ListTile(
-                        title: const Text('Em aberto'),
-                        leading: Radio<String>(
-                          value: 'Em aberto',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      ListTile(
-                        title: const Text('Concluido'),
-                        leading: Radio<String>(
-                          value: 'Concluido',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      ListTile(
-                        title: const Text('Cancelado'),
-                        leading: Radio<String>(
-                          value: 'Cancelado',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          saveAndBack();
-                        },
-                        child: Text(
-                          "Salvar",
-                        ),
-                      )
-                    ],
-                  ),
+                  ),           
                 ],
               ),
             ),

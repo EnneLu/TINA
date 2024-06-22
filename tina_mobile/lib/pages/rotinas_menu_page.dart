@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:tina_mobile/pages/create_medication_page.dart';
+import 'package:tina_mobile/pages/create_alimentation_page.dart';
 import 'package:tina_mobile/pages/create_event_page.dart';
 import 'package:tina_mobile/pages/create_habit_page.dart';
 
@@ -40,9 +42,27 @@ class _RotinasMenuPageState extends State<RotinasMenuPage> {
           },
           ),
         Divider(),
-        ListTile(leading: Icon(Icons.restaurant,color: Colors.white),title: Text("Alimentação"),tileColor: Colors.transparent),
+        ListTile(leading: Icon(Icons.restaurant,color: Colors.white),title: Text("Alimentação"),tileColor: Colors.transparent,
+          onTap: () {
+            Navigator.of(context)
+                .push(
+              MaterialPageRoute(
+                builder: (context) => CreateAlimentationPage(),
+              ),
+            );
+          },
+          ),
         Divider(),
-        ListTile(leading: Icon(Icons.medication,color: Colors.white),title: Text("Medicamentos"),tileColor: Colors.transparent)
+        ListTile(leading: Icon(Icons.medication,color: Colors.white),title: Text("Medicamentos"),tileColor: Colors.transparent,
+          onTap: () {
+            Navigator.of(context)
+                .push(
+              MaterialPageRoute(
+                builder: (context) => CreateMedicationPage(),
+              ),
+            );
+          },
+          ),
       ]),
     );
   }

@@ -4,8 +4,10 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:tina_mobile/components/SingleChoice.dart';
+import 'package:tina_mobile/components/MultipleChoice.dart';
 import 'package:tina_mobile/components/my_icon_button.dart';
-import 'package:tina_mobile/model/event.dart';
+import 'package:tina_mobile/model/habit.dart';
 
 class CreateHabitPage extends StatefulWidget {
   const CreateHabitPage({super.key});
@@ -19,15 +21,16 @@ class _CreateHabitPageState extends State<CreateHabitPage> {
   final _emojiScrollController = ScrollController();
 
   final _dateController = TextEditingController();
-  final _placeController = TextEditingController();
   final _nameController = TextEditingController();
 
   bool showEmojiKeyboard = false;
   bool showColorPicker = false;
+  Calendar repeticaoTipo = Calendar.dia;
+  Set<Sizes> repeticaoDia = <Sizes>{Sizes.domingo};
 
   String? emoji;
   Color color = Color(0xFFFFDC71);
-  String currentStatus = "Em andamento";
+  String currentStatus = "Em aberto";
 
   @override
   void initState() {
@@ -43,25 +46,22 @@ class _CreateHabitPageState extends State<CreateHabitPage> {
     }
     if (_dateController.text == "") {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Data é obrigatória"),
-      ));
-      return;
-    }
-    if (_placeController.text == "") {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Local é obrigatório"),
+        content: Text("Horário é obrigatório"),
       ));
       return;
     }
 
-    Event event = Event(
-        color: color,
-        place: _placeController.text,
-        date: DateFormat("dd/MM/yyyy HH:mm").parse(_dateController.text),
-        emoji: emoji ?? "📆",
-        name: _nameController.text,
-        status: currentStatus);
-    Navigator.pop(context, event);
+    Habit habit = Habit(
+      color: color, 
+      status: '', 
+      emoji: emoji ?? "📆", 
+      name: _nameController.text, 
+      date: DateFormat("hh:mm").parse(_dateController.text), 
+      repeticaoTipo: repeticaoTipo, 
+      repeticaoDia: repeticaoDia,
+     
+    );
+    Navigator.pop(context, habit);
   }
 
   Widget showColorPickerModal() {
@@ -200,6 +200,52 @@ class _CreateHabitPageState extends State<CreateHabitPage> {
                     ],
                   ),
                   Divider(), 
+                  ListTile(title: Text("Repetição"),tileColor: Colors.transparent),
+                  SingleChoice(onUpdate: (c) {
+                    setState(() {
+                      repeticaoTipo = c;
+                    });
+                  },), 
+                  SizedBox(height: 40,),
+                  MultipleChoice(onUpdate: (l) {
+                    setState(() {
+                      repeticaoDia = l;
+                    });
+                  },),
+                  SizedBox(height: 20,),
+                  Divider(),
+                  Stack(
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: "Horário",
+                          hintText: "Horário",
+                        ),
+                        controller: _dateController,
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 65,
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          onTap: () {                            
+                            showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.now())
+                                .then((selectedTime) {
+                              if (selectedTime != null) {
+                                _dateController.text +=
+                                    " ${selectedTime.format(context)}";
+                              }                              
+                            });
+                          },
+                        ),
+                      )
+                    ],
+                  ),           
                 ],
               ),
             ),

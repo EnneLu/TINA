@@ -3,27 +3,30 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
-import 'package:intl/intl.dart';
+import 'package:tina_mobile/components/SingleChoice.dart';
+import 'package:tina_mobile/components/MultipleChoice.dart';
 import 'package:tina_mobile/components/my_icon_button.dart';
-import 'package:tina_mobile/model/event.dart';
+import 'package:tina_mobile/model/medication.dart';
 
-class CreateEventPage extends StatefulWidget {
-  const CreateEventPage({super.key});
+class CreateMedicationPage extends StatefulWidget {
+  const CreateMedicationPage({super.key});
 
   @override
-  State<CreateEventPage> createState() => _CreateEventPageState();
+  State<CreateMedicationPage> createState() => _CreateMedicationPageState();
 }
 
-class _CreateEventPageState extends State<CreateEventPage> {
+class _CreateMedicationPageState extends State<CreateMedicationPage> {
   final _emojiController = TextEditingController();
   final _emojiScrollController = ScrollController();
 
   final _dateController = TextEditingController();
-  final _placeController = TextEditingController();
+  final _dosagemController = TextEditingController();
   final _nameController = TextEditingController();
 
   bool showEmojiKeyboard = false;
   bool showColorPicker = false;
+  Calendar repeticaoTipo = Calendar.dia;
+  Set<Sizes> repeticaoDia = <Sizes>{Sizes.domingo};
 
   String? emoji;
   Color color = Color(0xFFFFDC71);
@@ -41,27 +44,29 @@ class _CreateEventPageState extends State<CreateEventPage> {
       ));
       return;
     }
-    if (_dateController.text == "") {
+    if (_dosagemController.text == "") {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Data é obrigatória"),
+        content: Text("Dosagem é obrigatório"),
       ));
       return;
     }
-    if (_placeController.text == "") {
+    if (_dateController.text == "") {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Local é obrigatório"),
+        content: Text("Horário é obrigatório"),
       ));
       return;
     }
 
-    Event event = Event(
-        color: color,
-        place: _placeController.text,
-        date: DateFormat("dd/MM/yyyy HH:mm").parse(_dateController.text),
-        emoji: emoji ?? "📆",
-        name: _nameController.text,
-        status: currentStatus);
-    Navigator.pop(context, event);
+    Medication medication = Medication(
+      color: color, 
+      emoji: emoji ?? "📆", 
+      nome: _nameController.text, 
+      status: currentStatus,
+      repeticaoTipo: repeticaoTipo, 
+      repeticaoDia: repeticaoDia,
+      dosagem: _dosagemController.text, 
+    );
+    Navigator.pop(context, medication);
   }
 
   Widget showColorPickerModal() {
@@ -141,7 +146,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Novo evento"),
+        title: Text("Novo medicamento"),
       ),
       body: Column(
         children: [
@@ -156,6 +161,17 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       hintText: "Nome",
                     ),
                     controller: _nameController,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: "Dosagem",
+                      hintText: "Dosagem",
+                    ),
+                    controller: _dosagemController,
                     style: TextStyle(color: Colors.white),
                   ),
                   SizedBox(
@@ -199,13 +215,27 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       ),
                     ],
                   ),
+                  Divider(), 
+                  ListTile(title: Text("Repetição"),tileColor: Colors.transparent),
+                  SingleChoice(onUpdate: (c) {
+                    setState(() {
+                      repeticaoTipo = c;
+                    });
+                  },),
+                  SizedBox(height: 40,),
+                  MultipleChoice(onUpdate: (l) {
+                    setState(() {
+                      repeticaoDia = l;
+                    });
+                  },),
+                  SizedBox(height: 20,),
                   Divider(),
                   Stack(
                     children: [
                       TextField(
                         decoration: InputDecoration(
-                          labelText: "Data",
-                          hintText: "Data",
+                          labelText: "Horário",
+                          hintText: "Horário",
                         ),
                         controller: _dateController,
                         style: TextStyle(
@@ -217,101 +247,21 @@ class _CreateEventPageState extends State<CreateEventPage> {
                         height: 65,
                         child: InkWell(
                           splashColor: Colors.transparent,
-                          onTap: () {
-                            showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2022),
-                              lastDate: DateTime(2033),
-                            ).then((selectedDate) {
-                              if (selectedDate != null) {
-                                _dateController.text = DateFormat('dd/MM/yyyy')
-                                    .format(selectedDate);
-                              }
-                              showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now())
-                                  .then((selectedTime) {
-                                if (selectedTime != null) {
-                                  _dateController.text +=
-                                      " ${selectedTime.format(context)}";
-                                }
-                              });
+                          onTap: () {                            
+                            showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.now())
+                                .then((selectedTime) {
+                              if (selectedTime != null) {
+                                _dateController.text +=
+                                    " ${selectedTime.format(context)}";
+                              }                              
                             });
                           },
                         ),
                       )
                     ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextField(
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: "Local",
-                      hintText: "Local",
-                    ),
-                    controller: _placeController,
-                  ),
-                  Divider(),
-                  Column(
-                    children: [
-                      ListTile(
-                        title: const Text('Em aberto'),
-                        leading: Radio<String>(
-                          value: 'Em aberto',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      ListTile(
-                        title: const Text('Concluido'),
-                        leading: Radio<String>(
-                          value: 'Concluido',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      ListTile(
-                        title: const Text('Cancelado'),
-                        leading: Radio<String>(
-                          value: 'Cancelado',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          saveAndBack();
-                        },
-                        child: Text(
-                          "Salvar",
-                        ),
-                      )
-                    ],
-                  ),
+                  ),           
                 ],
               ),
             ),
