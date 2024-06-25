@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:tina_mobile/components/SingleChoice.dart';
 import 'package:tina_mobile/components/MultipleChoice.dart';
 
 class Medication {
-  final String nome;
+  final String name;
   final String dosagem;
   final String emoji;
-  final String status;
+  String status;
   final Color color;
-  final Calendar repeticaoTipo;
+  final String date;
   final Set<Sizes> repeticaoDia;
 
   Medication(
       {
-        required this.nome,
+        required this.name,
         required this.dosagem,
         required this.emoji,
         required this.status,
         required this.color,
-        required this.repeticaoTipo,
+        required this.date,
         required this.repeticaoDia
     });
 }

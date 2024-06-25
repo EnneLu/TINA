@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tina_mobile/components/MultipleChoice.dart';
-import 'package:tina_mobile/components/SingleChoice.dart';
 
 class Habit {
   final String name;
-  final DateTime date;
+  final String date;
   final Color color;
-  final String status;
+  String status;
   final String emoji;
-  final Calendar repeticaoTipo;
   final Set<Sizes> repeticaoDia;
 
   Habit(    
@@ -18,7 +16,6 @@ class Habit {
     required this.emoji,
     required this.name,
     required this.date,
-    required this.repeticaoTipo,
     required this.repeticaoDia,
   });
 }

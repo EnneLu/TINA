@@ -2,12 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:tina_mobile/components/MultipleChoice.dart';
 import 'package:tina_mobile/components/event_card.dart';
+import 'package:tina_mobile/components/habit_card.dart';
+import 'package:tina_mobile/components/medication_card.dart';
 import 'package:tina_mobile/components/my_icon_button.dart';
 import 'package:tina_mobile/model/event.dart';
-import 'package:tina_mobile/pages/create_event_page.dart';
+import 'package:tina_mobile/model/habit.dart';
+import 'package:tina_mobile/model/medication.dart';
 import 'package:tina_mobile/pages/personal_data.dart';
 import 'package:tina_mobile/pages/rotinas_menu_page.dart';
+import 'package:tina_mobile/pages/view_notifications.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -20,6 +25,11 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime _currentDate = DateTime.now();
 
   List<Event> eventsList = [];
+  List<Habit> habitsList = [];
+  List<Medication> medicationsList = [];
+  List<Event> eventsListFromDay = [];
+  List<Habit> habitsListFromDay = [];
+  List<Medication> medicationsListFromDay = [];
 
   void updateDate(DateTime date) {
     setState(() {
@@ -36,10 +46,32 @@ class _MyHomePageState extends State<MyHomePage> {
           "Olá, Luenne!",
         ),
         actions: [
-          Icon(
-            Icons.notifications,
-            color: Colors.white,
-          ),
+          MyIconButton(text: "", icon: Icons.notifications, iconColor: Colors.white, background: Colors.transparent, onPressed: () {
+           List<Event> eventsListStatus = eventsList.where((element) => element.status == 'Em aberto' && element.date.day == DateTime.now().day && element.date.month == DateTime.now().month && element.date.year == DateTime.now().year).toList();
+           List<Habit> habitsListStatus = habitsList.where((element) => element.status == 'Em aberto').toList();
+           List<Medication> medicationsListStatus = medicationsList.where((element) => element.status == 'Em aberto').toList();
+            Navigator.of(context)
+                .push(
+              MaterialPageRoute(
+                builder: (context) => ViewNotifications(eventsFiltrada: eventsListStatus, habitsFiltrada: habitsListStatus, medicationsFiltrada: medicationsListStatus),
+              ),
+            ).then((value){
+              for (var element in value) {
+                if (element.runtimeType == List<Habit>){
+                  habitsList.removeWhere((element) => habitsListStatus.contains(element));
+                  habitsList.addAll(element);
+                }
+                if (element.runtimeType == List<Event>){
+                  eventsList.removeWhere((element) => eventsListStatus.contains(element));
+                  eventsList.addAll(element);
+                }
+                if (element.runtimeType == List<Medication>){
+                  medicationsList.removeWhere((element) => medicationsListStatus.contains(element));
+                  medicationsList.addAll(element);
+                }
+              }
+            });
+          },),        
           SizedBox(
             width: 10,
           ),
@@ -84,7 +116,23 @@ class _MyHomePageState extends State<MyHomePage> {
                           MaterialPageRoute(
                             builder: (context) => RotinasMenuPage(),
                           ),
-                        );
+                        ).then((value) {
+                          if (value.runtimeType == Event) {
+                            setState(() {
+                              eventsList.add(value);
+                            });
+                          }
+                          else if (value.runtimeType == Habit) {
+                            setState(() {
+                              habitsList.add(value);
+                            });
+                          }
+                          else if (value.runtimeType == Medication) {
+                            setState(() {
+                              medicationsList.add(value);
+                            });
+                          }
+                        });
                       },                
                       child: Container(
                       decoration: BoxDecoration(
@@ -111,6 +159,41 @@ class _MyHomePageState extends State<MyHomePage> {
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _currentDate = selectedDay;
+                  eventsListFromDay = eventsList
+                      .where((element) =>
+                          element.date.day == selectedDay.day &&
+                          element.date.month == selectedDay.month &&
+                          element.date.year == selectedDay.year &&
+                          element.status == 'Em aberto')
+                      .toList();
+                  habitsListFromDay = habitsList
+                    .where((element){
+                        if (element.status != 'Em aberto'){ return false; }
+                        for (var elementFor in element.repeticaoDia) {
+                          if (elementFor == Sizes.domingo && selectedDay.weekday == 7){ return true; }
+                          if (elementFor == Sizes.segunda && selectedDay.weekday == 1){ return true; }
+                          if (elementFor == Sizes.terca && selectedDay.weekday == 2){ return true; }
+                          if (elementFor == Sizes.quarta && selectedDay.weekday == 3){ return true; }
+                          if (elementFor == Sizes.quinta && selectedDay.weekday == 4){ return true; }
+                          if (elementFor == Sizes.sexta && selectedDay.weekday == 5){ return true; }
+                          if (elementFor == Sizes.sabado && selectedDay.weekday == 6){ return true; }
+                        }
+                        return false;
+                    }).toList();
+                  medicationsListFromDay = medicationsList
+                    .where((element){
+                      if (element.status != 'Em aberto'){ return false; }
+                        for (var elementFor in element.repeticaoDia) {
+                          if (elementFor == Sizes.domingo && selectedDay.weekday == 7){ return true; }
+                          if (elementFor == Sizes.segunda && selectedDay.weekday == 1){ return true; }
+                          if (elementFor == Sizes.terca && selectedDay.weekday == 2){ return true; }
+                          if (elementFor == Sizes.quarta && selectedDay.weekday == 3){ return true; }
+                          if (elementFor == Sizes.quinta && selectedDay.weekday == 4){ return true; }
+                          if (elementFor == Sizes.sexta && selectedDay.weekday == 5){ return true; }
+                          if (elementFor == Sizes.sabado && selectedDay.weekday == 6){ return true; }
+                        }
+                        return false;
+                    }).toList();  
                 });
               },
               selectedDayPredicate: (day) {
@@ -176,51 +259,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(
-              height: 50,
-            ),
-            Row(
-              children: [
-                Text(
-                  "Evento",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.of(context)
-                        .push(
-                      MaterialPageRoute(
-                        builder: (context) => CreateEventPage(),
-                      ),
-                    )
-                        .then((value) {
-                      if (value.runtimeType == Event) {
-                        setState(() {
-                          eventsList.add(value);
-                        });
-                      }
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFE195ED),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      color: Color(0xFF211522),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
               height: 20,
             ),
-            eventsList.isEmpty
-                ? Column(
+            eventsListFromDay.isEmpty
+                ? (eventsListFromDay.isEmpty && habitsListFromDay.isEmpty && medicationsListFromDay.isEmpty ? 
+                Column(
                   children: [
                     Icon(
                       Icons.event,
@@ -237,14 +280,47 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                   ],
-                )
+                ): Container())
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: eventsList.length,
+                    itemCount: eventsListFromDay.length,
                     itemBuilder: (context, index) {
                       return EventCard(
-                        event: eventsList[index],
+                        event: eventsListFromDay[index],
+                        onPressed:(boolStatus) {
+                          
+                        },
+                      );
+                    },
+                  ),
+                habitsListFromDay.isEmpty
+                ? Column()
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: habitsListFromDay.length,
+                    itemBuilder: (context, index) {
+                      return HabitCard(
+                        habit: habitsListFromDay[index],
+                        onPressed:(boolStatus) {
+                          
+                        },
+                      );
+                    },
+                  ),
+                medicationsListFromDay.isEmpty
+                ? Column()
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: medicationsListFromDay.length,
+                    itemBuilder: (context, index) {
+                      return MedicationCard(
+                        medication: medicationsListFromDay[index],
+                        onPressed:(boolStatus) {
+                          
+                        },
                       );
                     },
                   )

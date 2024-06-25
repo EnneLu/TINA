@@ -1,21 +1,20 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:tina_mobile/model/event.dart';
+import 'package:tina_mobile/model/medication.dart';
 
-class EventCard extends StatefulWidget {
-  const EventCard({super.key, required this.event, required this.onPressed, this.showAction = false});
+class MedicationCard extends StatefulWidget {
+  const MedicationCard({super.key, required this.medication, this.showAction = false, required this.onPressed});
 
-  final Event event;
+  final Medication medication;
   final bool showAction;
   final void Function(String boolStatus) onPressed;
 
   @override
-  State<EventCard> createState() => _EventCardState();
+  State<MedicationCard> createState() => _MedicationCardState();
 }
 
-class _EventCardState extends State<EventCard> {
+class _MedicationCardState extends State<MedicationCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,7 +29,7 @@ class _EventCardState extends State<EventCard> {
         color: Color(0xFF2F1933),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: widget.event.color,
+          color: widget.medication.color,
           width: 1,
         ),
       ),
@@ -41,7 +40,7 @@ class _EventCardState extends State<EventCard> {
           Row(
             children: [
               Text(
-                widget.event.emoji,
+                widget.medication.emoji,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -51,7 +50,7 @@ class _EventCardState extends State<EventCard> {
                 width: 10,
               ),
               Text(
-                widget.event.name,
+                widget.medication.name,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -63,7 +62,7 @@ class _EventCardState extends State<EventCard> {
             height: 10,
           ),
           Text(
-            DateFormat('EEEE, dd/MM/yyyy hh:mm').format(widget.event.date),
+            widget.medication.date,
             style: TextStyle(
               color: Colors.white,
             ),

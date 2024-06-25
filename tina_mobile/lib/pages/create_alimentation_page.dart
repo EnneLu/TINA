@@ -234,7 +234,18 @@ class _CreateAlimentationPageState extends State<CreateAlimentationPage> {
                         ),
                       )
                     ],
-                  ),           
+                  ), 
+                  SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      saveAndBack();
+                    },
+                    child: Text(
+                      "Salvar",
+                    ),
+                  )          
                 ],
               ),
             ),

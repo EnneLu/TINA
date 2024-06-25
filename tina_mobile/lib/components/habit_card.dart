@@ -1,21 +1,21 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:tina_mobile/model/event.dart';
+import 'package:tina_mobile/model/habit.dart';
 
-class EventCard extends StatefulWidget {
-  const EventCard({super.key, required this.event, required this.onPressed, this.showAction = false});
+class HabitCard extends StatefulWidget {
+  const HabitCard({super.key, required this.habit, this.showAction = false, required this.onPressed});
 
-  final Event event;
+  final Habit habit;
   final bool showAction;
   final void Function(String boolStatus) onPressed;
 
   @override
-  State<EventCard> createState() => _EventCardState();
+  State<HabitCard> createState() => _HabitCardState();
 }
 
-class _EventCardState extends State<EventCard> {
+class _HabitCardState extends State<HabitCard> {
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,7 +30,7 @@ class _EventCardState extends State<EventCard> {
         color: Color(0xFF2F1933),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: widget.event.color,
+          color: widget.habit.color,
           width: 1,
         ),
       ),
@@ -41,7 +41,7 @@ class _EventCardState extends State<EventCard> {
           Row(
             children: [
               Text(
-                widget.event.emoji,
+                widget.habit.emoji,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -51,7 +51,7 @@ class _EventCardState extends State<EventCard> {
                 width: 10,
               ),
               Text(
-                widget.event.name,
+                widget.habit.name,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -63,7 +63,7 @@ class _EventCardState extends State<EventCard> {
             height: 10,
           ),
           Text(
-            DateFormat('EEEE, dd/MM/yyyy hh:mm').format(widget.event.date),
+            widget.habit.date,
             style: TextStyle(
               color: Colors.white,
             ),

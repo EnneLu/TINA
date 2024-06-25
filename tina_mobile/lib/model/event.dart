@@ -5,7 +5,7 @@ class Event {
   final DateTime date;
   final Color color;
   final String place;
-  final String status;
+  String status;
   final String emoji;
 
   Event(

@@ -8,8 +8,8 @@ import 'package:tina_mobile/components/my_icon_button.dart';
 import 'package:tina_mobile/model/event.dart';
 
 class CreateEventPage extends StatefulWidget {
-  const CreateEventPage({super.key});
-
+  const CreateEventPage({super.key, this.fromHomePage = true});
+  final bool fromHomePage;
   @override
   State<CreateEventPage> createState() => _CreateEventPageState();
 }
@@ -61,6 +61,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
         emoji: emoji ?? "📆",
         name: _nameController.text,
         status: currentStatus);
+
+
+    if(!widget.fromHomePage){
+      Navigator.pop(context, event);
+    }
     Navigator.pop(context, event);
   }
 
@@ -256,52 +261,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   ),
                   Divider(),
                   Column(
-                    children: [
-                      ListTile(
-                        title: const Text('Em aberto'),
-                        leading: Radio<String>(
-                          value: 'Em aberto',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      ListTile(
-                        title: const Text('Concluido'),
-                        leading: Radio<String>(
-                          value: 'Concluido',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      ListTile(
-                        title: const Text('Cancelado'),
-                        leading: Radio<String>(
-                          value: 'Cancelado',
-                          groupValue: currentStatus,
-                          onChanged: (String? value) {
-                            if (value != null) {
-                              setState(() {
-                                currentStatus = value;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
+                    children: [ 
                       ElevatedButton(
                         onPressed: () {
                           saveAndBack();

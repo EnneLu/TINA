@@ -86,15 +86,7 @@ class _PersonalDataState extends State<PersonalData> {
                     ),
                     controller: _nameController,
                     style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(height: 10,),
-                  Divider(),  
-                  ListTile(title: Text("Restrições"),tileColor: Colors.transparent),
-                  Stack(
-                    children: [
-                      
-                    ],
-                  ),           
+                  ),    
                 ],
               ),
             ),

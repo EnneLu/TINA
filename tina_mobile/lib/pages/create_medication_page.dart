@@ -3,7 +3,7 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
-import 'package:tina_mobile/components/SingleChoice.dart';
+import 'package:intl/intl.dart';
 import 'package:tina_mobile/components/MultipleChoice.dart';
 import 'package:tina_mobile/components/my_icon_button.dart';
 import 'package:tina_mobile/model/medication.dart';
@@ -25,7 +25,6 @@ class _CreateMedicationPageState extends State<CreateMedicationPage> {
 
   bool showEmojiKeyboard = false;
   bool showColorPicker = false;
-  Calendar repeticaoTipo = Calendar.dia;
   Set<Sizes> repeticaoDia = <Sizes>{Sizes.domingo};
 
   String? emoji;
@@ -58,14 +57,15 @@ class _CreateMedicationPageState extends State<CreateMedicationPage> {
     }
 
     Medication medication = Medication(
-      color: color, 
-      emoji: emoji ?? "📆", 
-      nome: _nameController.text, 
+      color: color,
+      emoji: emoji ?? "📆",
+      name: _nameController.text,
       status: currentStatus,
-      repeticaoTipo: repeticaoTipo, 
       repeticaoDia: repeticaoDia,
-      dosagem: _dosagemController.text, 
+      date: DateFormat("HH:mm").format(DateFormat("yyyy/dd/MM h:mm a").parse("2024/02/02${_dateController.text}")), 
+      dosagem: _dosagemController.text,
     );
+    Navigator.pop(context);
     Navigator.pop(context, medication);
   }
 
@@ -217,11 +217,6 @@ class _CreateMedicationPageState extends State<CreateMedicationPage> {
                   ),
                   Divider(), 
                   ListTile(title: Text("Repetição"),tileColor: Colors.transparent),
-                  SingleChoice(onUpdate: (c) {
-                    setState(() {
-                      repeticaoTipo = c;
-                    });
-                  },),
                   SizedBox(height: 40,),
                   MultipleChoice(onUpdate: (l) {
                     setState(() {
@@ -261,7 +256,18 @@ class _CreateMedicationPageState extends State<CreateMedicationPage> {
                         ),
                       )
                     ],
-                  ),           
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      saveAndBack();
+                    },
+                    child: Text(
+                      "Salvar",
+                    ),
+                  )           
                 ],
               ),
             ),

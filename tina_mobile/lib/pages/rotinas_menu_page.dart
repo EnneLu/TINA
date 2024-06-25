@@ -36,7 +36,7 @@ class _RotinasMenuPageState extends State<RotinasMenuPage> {
             Navigator.of(context)
                 .push(
               MaterialPageRoute(
-                builder: (context) => CreateEventPage(),
+                builder: (context) => CreateEventPage(fromHomePage: false,),
               ),
             );
           },

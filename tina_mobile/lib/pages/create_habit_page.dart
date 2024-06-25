@@ -53,14 +53,14 @@ class _CreateHabitPageState extends State<CreateHabitPage> {
 
     Habit habit = Habit(
       color: color, 
-      status: '', 
+      status: currentStatus, 
       emoji: emoji ?? "📆", 
       name: _nameController.text, 
-      date: DateFormat("hh:mm").parse(_dateController.text), 
-      repeticaoTipo: repeticaoTipo, 
+      date: DateFormat("HH:mm").format(DateFormat("yyyy/dd/MM h:mm a").parse("2024/02/02${_dateController.text}")), 
       repeticaoDia: repeticaoDia,
      
     );
+    Navigator.pop(context);
     Navigator.pop(context, habit);
   }
 
@@ -201,11 +201,6 @@ class _CreateHabitPageState extends State<CreateHabitPage> {
                   ),
                   Divider(), 
                   ListTile(title: Text("Repetição"),tileColor: Colors.transparent),
-                  SingleChoice(onUpdate: (c) {
-                    setState(() {
-                      repeticaoTipo = c;
-                    });
-                  },), 
                   SizedBox(height: 40,),
                   MultipleChoice(onUpdate: (l) {
                     setState(() {
@@ -245,7 +240,18 @@ class _CreateHabitPageState extends State<CreateHabitPage> {
                         ),
                       )
                     ],
-                  ),           
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      saveAndBack();
+                    },
+                    child: Text(
+                      "Salvar",
+                    ),
+                  ) 
                 ],
               ),
             ),
